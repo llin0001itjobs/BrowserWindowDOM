@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <!-- Include necessary CSS and JavaScript dependencies -->
+</head>
+<body>
+    <!-- Your HTML content -->
+
+    <script th:inline="javascript">
+        // JavaScript code to redirect to the specified path
+        //The `/*[[ @{'/'} ]]*/` 
+        /*expression is a Thymeleaf syntax that resolves to the URL of the mapping defined*/
+        /*in the `HomeController` class's `redirect()` method (i.e., the root path "/").*/        
+        window.location.href = /*[[ @{'/'} ]]*/ '';
+    </script>
+</body>
+</html>
