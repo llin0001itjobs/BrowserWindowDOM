@@ -41,16 +41,18 @@ $(document).ready(function() {
 });
 
 $(document).ready(function() {
-
 	$('.modal-anchor').on('click', function(e) {
 		e.preventDefault();
-		$('#modal-title').text(e.target.dataset.value);
 		var str = window[e.target.dataset.value];
 		if (typeof str === 'object') {
 			str = JSON.stringify(str);
 		}
-		$('#modal-body-text').text(str);
-		$("#modal-container").modal("show");
+
+		var text = $(this).text();	
+		$('#exampleModalLabel').html(text);
+		$('.modal-body').html(str);
+		        
+        $('#exampleModal').modal('show');
 	});
 });
 
@@ -114,10 +116,6 @@ function createListFromBuckets(arr, elem) {
 		}
 		li.append(ul);
 	}
-}
-
-function setUpDialog() {
-
 }
 
 function printBuckets(buckets) {
