@@ -44,14 +44,16 @@ $(document).ready(function() {
 	$('.modal-anchor').on('click', function(e) {
 		e.preventDefault();
 		var str = window[e.target.dataset.value];
-		str = JSON.stringify(str);		
-		var text = $(this).text();
-		var obj = window[text];
-		if (typeof obj === 'function') {
-			str = obj.toString();		
-		}		
-		$('#exampleModalLabelTitle').html(text);		
-		$('#exampleModalLabel').html(str);
+		/*
+		if (typeof str !== 'function') {
+			str = JSON.stringify(str);
+		}
+*/
+		var text = $(this).text();	
+		$('#exampleModalLabel').html(text);
+		$('.modal-body').html(str);
+		        
+        $('#exampleModal').modal('show');
 	});
 });
 
