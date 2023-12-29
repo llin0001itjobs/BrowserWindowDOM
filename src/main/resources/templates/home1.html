@@ -18,32 +18,21 @@
 <script th:src="@{/js/jquery-3.7.1.min.js}"></script>
 <script th:src="@{/js/jquery-ui.min.js}"></script>
 <body class="">
-	<h1>Window DOM</h1>
-	<div class="container">
-		<div class="modal fade" id="exampleModal" tabindex="-1"
-			aria-labelledby="exampleModalLabel" aria-hidden="true">
-			<div class="modal-dialog">
-				<div class="modal-content">
-					<div class="modal-header">
-						<h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
-						<button type="button" class="btn-close" data-bs-dismiss="modal"
-							aria-label="Close"></button>
-					</div>
-					<div class="modal-body">
-						<textarea cols="40" rows="20" ></textarea>
-					</div>
-					<div class="modal-footer">
-						<button type="button" class="btn btn-secondary"
-							data-bs-dismiss="modal">Close</button>
-					</div>
+	<main>
+		<h1>Window DOM</h1>
+
+		<div class="container">
+			<div class="row">
+				<div class="col" id="list-container">
+					<ul class="list" id="my-list">
+					</ul>
 				</div>
-			</div>
+				<div class="col">
+				<h3 id="exampleModalLabelTitle">Object</h3>
+				<textarea id="exampleModalLabel" cols="50" rows="35"></textarea></div>
+			</div>/
 		</div>
-		<div id="list-container" class="container">
-			<ul class="list" id="my-list">
-			</ul>
-		</div>
-	</div>
+	</main>
 	<script
 		src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
 	<script
