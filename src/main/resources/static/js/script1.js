@@ -50,9 +50,8 @@ $(document).ready(function() {
 		if (typeof obj === 'function') {
 			str = obj.toString();		
 		}		
-		$('#exampleModalLabel').html(text);
-		$('.modal-body textarea').html(str);
-        $('#exampleModal').modal('show');
+		$('#exampleModalLabelTitle').html(text);		
+		$('#exampleModalLabel').html(str);
 	});
 });
 
