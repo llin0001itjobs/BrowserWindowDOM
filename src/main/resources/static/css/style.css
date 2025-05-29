@@ -1,0 +1,39 @@
+.list {
+	list-style: none;
+	padding-left: 0;
+}
+
+.item {
+	cursor: pointer;
+}
+
+.toggle {
+	display: inline-block;
+	width: 20px;
+	text-align: center;
+	font-weight: bold;
+}
+
+.sublist {
+	display: none;
+}
+
+.spanTitle {
+	background-color: #ddede8;
+}
+
+a {
+	text-decoration: none;
+}
+
+a:active, a:visited {
+	color: #000;	
+}
+
+a:hover {
+	text-decoration: underline;
+}
+
+#modal-container {
+	display: none;
+}
