@@ -12,7 +12,7 @@
 	<groupId>org.llin.demo</groupId>
 	<artifactId>browserwindowdom</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<packaging>war</packaging>
+	<packaging>jar</packaging>
 	<name>BrowserWindowDOM</name>
 	<description>BrowserWindowDOM shows the DOM of a browser</description>
 	<properties>
@@ -48,6 +48,18 @@
 
 	<build>
 		<plugins>
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+				<version>3.1.5</version> <!-- or your current version -->
+				<executions>
+					<execution>
+						<goals>
+							<goal>repackage</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
 		</plugins>
 	</build>
 
