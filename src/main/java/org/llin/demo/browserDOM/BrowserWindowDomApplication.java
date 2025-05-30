@@ -6,12 +6,7 @@ import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
 
 @SpringBootApplication
-public class BrowserWindowDomApplication extends SpringBootServletInitializer {
-
-    @Override
-    protected SpringApplicationBuilder configure(SpringApplicationBuilder application) {
-        return application.sources(BrowserWindowDomApplication.class);
-    }
+public class BrowserWindowDomApplication {
 
 	public static void main(String[] args) {
 		SpringApplication.run(BrowserWindowDomApplication.class, args);
