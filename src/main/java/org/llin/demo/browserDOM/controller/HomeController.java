@@ -2,17 +2,22 @@ package org.llin.demo.browserDOM.controller;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.servlet.ModelAndView;
 
 @Controller
-@RequestMapping("/home")
 public class HomeController {
 
-    @GetMapping("/intro")
-    public ModelAndView showInstruction() {
-		ModelAndView modelAndView = new ModelAndView("home");		
-		return modelAndView; 
+    @GetMapping("/")
+    public String index() {
+        return "redirect:/login"; // Maps to login.html
     }
 
-}
+    @GetMapping("/login")
+    public String login() {
+        return "login-page"; // Maps to login.html
+    }
+
+    @GetMapping("/home")
+    public String home() {
+        return "home"; // Maps to home.html
+    }
+} 

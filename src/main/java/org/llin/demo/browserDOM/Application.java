@@ -6,10 +6,10 @@ import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
 
 @SpringBootApplication
-public class BrowserWindowDomApplication {
+public class Application {
 
 	public static void main(String[] args) {
-		SpringApplication.run(BrowserWindowDomApplication.class, args);
+		SpringApplication.run(Application.class, args);
 	}
 
 }
