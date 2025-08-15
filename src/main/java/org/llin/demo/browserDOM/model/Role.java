@@ -15,7 +15,7 @@ public class Role {
     private int id; // Matches INT(11) in MySQL
     private String name; // Matches VARCHAR(64)
     private String description; // Matches VARCHAR(64)
-
+	
     // Getters and setters
     public Integer getId() { return id; }
     public void setId(Integer id) { this.id = id; }
