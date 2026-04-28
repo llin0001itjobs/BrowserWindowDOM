@@ -1,6 +1,7 @@
 package org.llin.demo.browserDOM.service;
 
 import java.util.Collections;
+import java.util.Optional;
 
 import org.llin.demo.browserDOM.model.User;
 import org.llin.demo.browserDOM.repository.UserRepository;
@@ -18,15 +19,34 @@ public class CustomUserDetailsService implements UserDetailsService {
 
     @Override
     public org.springframework.security.core.userdetails.UserDetails loadUserByUsername(String username) {
-        User user = userRepository.findByUsername(username);
-        if (user == null) {
+    	Optional<User> optUser = userRepository.findByUsername(username);
+        if (!optUser.isPresent()) {
             throw new UsernameNotFoundException("User not found: " + username);
         }
 
         return new org.springframework.security.core.userdetails.User(
-            user.getUsername(),
-            user.getPassword(),
-            Collections.singletonList(new SimpleGrantedAuthority(user.getRole().getName()))
+        	optUser.get().getUsername(),
+        	optUser.get().getPassword(),
+            Collections.singletonList(new SimpleGrantedAuthority(optUser.get().getRole().getType()))
         );
     }
+    
+
+    public User findUserByUsername(String username) {
+    	Optional<User> optUser = userRepository.findByUsername(username);
+        if (!optUser.isPresent()) {
+            throw new UsernameNotFoundException("User not found: " + username);
+        }
+
+        return optUser.get();
+    }    
+    
+    public User findUserByEmail(String email) {
+    	Optional<User> optUser = userRepository.findByEmail(email);
+        if (!optUser.isPresent()) {
+            throw new UsernameNotFoundException("User not found: " + email);
+        } else
+
+        return optUser.get();
+    }        
 }    
