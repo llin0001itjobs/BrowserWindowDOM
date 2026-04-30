@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Window Object Explorer</title>
+<!-- Bootstrap 5.3.x CSS -->
+<link
+    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/css/bootstrap.min.css"
+    rel="stylesheet" />
+<!-- Bootstrap Icons -->
+<link rel="stylesheet"
+    href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+<style>
+</style>
+</head>
+<body class="py-4">
+
+    <div id="containerMain" class="container">
+        <div class="row float-end">
+            <img id="previewDOM" title="Preview DOM" class="cursor-pointer"
+                th:src="@{/images/preview-icon.png}" height="50px" width="50px" />
+        </div>		
+        <div id="containerDOM" class="container row"></div>
+    </div>
+
+    <!-- Bootstrap Modal (property details - Bootstrap-enhanced list) -->
+    <div class="modal fade" id="propertyModal" tabindex="-1"
+        aria-labelledby="propertyModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-scrollable modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="propertyModalLabel"></h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"
+                        aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="modalBody">
+                    <!-- Dynamically filled by JS -->
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary"
+                        data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Preview Modal - plain list of the TOP-LEVEL children of window only -->
+    <div class="modal fade" id="previewModal" tabindex="-1"
+        aria-labelledby="previewModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="previewModalLabel"></h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"
+                        aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="previewModalBody">
+                    <!-- Plain <ul type="circle"> with first 15 children + ellipsis.png -->
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary"
+                        data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</body>
+<script>
+    window.addEventListener("load", onLoad);
+
+    // Store the top-level children of window once (so preview always shows the same list)
+    let topLevelChildren = [];
+
+    function onLoad() {
+        setUpDOM();
+        describeAChild();
+        previewDOM();
+        saveDOM();           // ← NEW: wire up the Save button
+    }
+    
+    function setUpDOM () {
+        var e = document.getElementById('containerDOM');
+        var arr = sort(window);
+        
+        // Save the top-level property names (excluding the ones we skip in printOut)
+        topLevelChildren = arr.filter(item => !['window', 'self', 'onLoad'].includes(item));
+
+        var str='';
+        str = str + '<ul id="listMain" type="none">';
+        str = str + '<li>' + 'window'+ expandContract('Window') + '</li>'; 
+        str = str + '<ul id="listWindow" class="list-group" type="none">';
+        str = str + printOut(arr,['window','self','onLoad']);
+        str = str + '</ul>';
+        str = str + '</ul>';
+        e.innerHTML = str;
+    }
+    
+    function describeAChild() {
+        // Click on any list item → still opens the Bootstrap modal (children of that property)
+        const listWindowEl = document.getElementById('listWindow');
+        listWindowEl.addEventListener('click', function (event) {
+            const li = event.target.closest('.list-group-item');
+            if (!li) return;
+
+            const propName = li.id.replace(/^window/, '');
+
+            let value;
+            try {
+                value = window[propName];
+            } catch (err) {
+                value = '[Access Error]';
+            }
+
+            const modalTitle = document.getElementById('propertyModalLabel');
+            modalTitle.textContent = `window.${propName} (${typeof value})`;
+
+            let bodyHTML = '';
+            if (value !== null && typeof value === 'object') {
+                const subArr = sort(value);
+                bodyHTML = `<ul class="list-group">`;
+                subArr.forEach(sub => {
+                    bodyHTML += `<li class="list-group-item"><span class="list-group-item-action">${sub}</span></li>`;
+                });
+                bodyHTML += `</ul>`;
+            } else if (typeof value === 'function') {
+                bodyHTML = `<div class="alert alert-info p-3"><strong>Function:</strong><pre class="mb-0">${value.toString()}</pre></div>`;
+            } else {
+                bodyHTML = `<div class="p-3 border bg-light"><strong>Value:</strong> <code>${String(value)}</code></div>`;
+            }
+
+            const modalBodyEl = document.getElementById('modalBody');
+            modalBodyEl.innerHTML = bodyHTML;
+
+            const modalInstance = new bootstrap.Modal(document.getElementById('propertyModal'));
+            modalInstance.show();
+        });    	
+    }
+    
+    function previewDOM() {
+        // Click the previewDOM image → opens plain modal with ONLY the top-level children of window
+        const previewImg = document.getElementById('previewDOM');
+        previewImg.addEventListener('click', function () {
+            const previewTitle = document.getElementById('previewModalLabel');
+            previewTitle.textContent = `Preview: window children (plain list)`;
+
+            let bodyHTML = '<ul type="circle">';
+            
+            // First children
+            const firstChildren = topLevelChildren.slice(0, 15);
+            firstChildren.forEach(sub => {
+                bodyHTML += `<li>${sub}</li>`;
+            });
+            
+            // 16th item = ellipsis.png (exactly as requested)
+            bodyHTML += `<li><span class="fw-bold fs-3">...</span></li>`;
+            
+            bodyHTML += '</ul>';
+
+            const previewBody = document.getElementById('previewModalBody');
+            previewBody.innerHTML = bodyHTML;
+
+            const previewInstance = new bootstrap.Modal(document.getElementById('previewModal'));
+            previewInstance.show();
+        });
+    }
+
+    /**
+     * NEW: Save button handler
+     * Creates a clean, standalone HTML file that looks EXACTLY like the preview modal
+     * but contains the FULL list of first-generation window children (no limit, no ellipsis).
+     * Triggers a normal browser download → goes straight to the user's default Downloads folder
+     * (the one you already changed to E: on Windows 11).
+     */
+    function saveDOM() {
+        const saveImg = document.getElementById('saveDOM');
+        
+        saveImg.addEventListener('click', function () {
+            if (topLevelChildren.length === 0) {
+                alert('Nothing to save yet – please wait for the DOM to load.');
+                return;
+            }
+
+            // Build a full standalone HTML file that mirrors the preview layout
+            let htmlContent = `<!DOCTYPE html>
+				<html lang="en">
+				<head>
+				    <meta charset="UTF-8">
+				    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+				    <title>window – Full First-Generation Children</title>
+				    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/css/bootstrap.min.css" rel="stylesheet">
+				    <style>
+				        body { padding: 30px; background:#f8f9fa; }
+				        h1 { font-size: 1.6rem; }
+				        ul { list-style-type: circle; padding-left: 25px; }
+				        li { padding: 4px 0; }
+				    </style>
+				</head>
+				<body>
+				    <div class="container">
+				        <h1 class="mb-4">Preview: window children (FULL list)</h1>
+				        <p class="text-muted">Total items: ${topLevelChildren.length} • Saved on ${new Date().toLocaleString()}</p>
+				        <ul type="circle">`;
+				
+				            // Add EVERY top-level child (exactly the same style as the preview modal)
+				            topLevelChildren.forEach(item => {
+				                htmlContent += `<li>${item}</li>`;
+				            });
+				
+				            htmlContent += `</ul>
+				    </div>
+				</body>
+				</html>`;
+
+            // Create Blob + trigger automatic download
+            const blob = new Blob([htmlContent], { type: 'text/html' });
+            const url = URL.createObjectURL(blob);
+            
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `window-children-full-${new Date().toISOString().slice(0,10)}.html`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+        });
+    }
+    
+    function sort(e) {
+        var arr = [];
+        for (i in e) {
+            arr.push(i);
+        }
+        arr.sort(function (a, b) {
+            return a.toLowerCase().localeCompare(b.toLowerCase());
+        });
+        return arr;
+    }
+    
+    function printOut(list,exlist) {
+        var str='';
+        for (e in list) {
+            if (exlist.includes(list[e])) continue;			
+            str = str + '<li id="' + 'window' + list[e] + '" class="list-group-item">';
+            str = str + '<span class="list-group-item-action">' + list[e] + '</span>';
+            str = str + '</li>';
+        }
+        return str;
+    }
+         
+    function expandContract(list) {
+        var str = '';
+        str = str + '<span class="fw-3">';
+        str = str + '<a class="btn btn-sm" data-bs-toggle="collapse" href="#list' + list + '" role="button" aria-expanded="false" aria-controls="list' + list + '">';
+        str = str + '-';
+        str = str + '</a>';
+        str = str + '<a class="btn btn-sm" data-bs-toggle="collapse" href="#list' + list + '" role="button" aria-expanded="false" aria-controls="list' + list + '">';
+        str = str + '+';
+        str = str + '</a>';
+        str = str + '</span>';
+        return str;
+    }
+
+</script>
+
+<script
+    src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+<script
+    src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/js/bootstrap.min.js"></script>
+
+</html>

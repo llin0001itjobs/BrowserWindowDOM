@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Window Object Explorer</title>
+<!-- Bootstrap 5.3.x CSS -->
+<link
+    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/css/bootstrap.min.css"
+    rel="stylesheet" />
+<!-- Bootstrap Icons -->
+<link rel="stylesheet"
+    href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+<style>
+</style>
+</head>
+<body class="py-4">
+
+    <div id="containerMain" class="container">
+        <!-- Only the Preview button remains -->
+        <div class="row float-end">
+            <img id="previewDOM" title="Preview full window children list" class="cursor-pointer"
+                th:src="@{/images/preview-icon.png}" height="50px" width="50px" />
+        </div>		
+        <div id="containerDOM" class="container row"></div>
+    </div>
+
+    <!-- Bootstrap Modal (property details - Bootstrap-enhanced list) -->
+    <div class="modal fade" id="propertyModal" tabindex="-1"
+        aria-labelledby="propertyModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-scrollable modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="propertyModalLabel"></h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"
+                        aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="modalBody">
+                    <!-- Dynamically filled by JS -->
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary"
+                        data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Preview Modal - FULL list of the TOP-LEVEL children of window only -->
+    <!-- Modal body is scrollable via Bootstrap's modal-dialog-scrollable -->
+    <div class="modal fade" id="previewModal" tabindex="-1"
+        aria-labelledby="previewModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="previewModalLabel"></h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"
+                        aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="previewModalBody">
+                    <!-- Now shows the FULL list + instruction to right-click and Save as... -->
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary"
+                        data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</body>
+<script>
+    window.addEventListener("load", onLoad);
+
+    // Store the top-level children of window once
+    let topLevelChildren = [];
+
+    function onLoad() {
+        setUpDOM();
+        describeAChild();
+        previewDOM();        // ← only preview remains
+    }
+    
+    function setUpDOM () {
+        var e = document.getElementById('containerDOM');
+        var arr = sort(window);
+        
+        // Save the top-level property names (excluding the ones we skip in printOut)
+        topLevelChildren = arr.filter(item => !['window', 'self', 'onLoad'].includes(item));
+
+        var str='';
+        str = str + '<ul id="listMain" type="none">';
+        str = str + '<li>' + 'window'+ expandContract('Window') + '</li>'; 
+        str = str + '<ul id="listWindow" class="list-group" type="none">';
+        str = str + printOut(arr,['window','self','onLoad']);
+        str = str + '</ul>';
+        str = str + '</ul>';
+        e.innerHTML = str;
+    }
+    
+    function describeAChild() {
+        // Click on any list item → still opens the Bootstrap modal (children of that property)
+        const listWindowEl = document.getElementById('listWindow');
+        listWindowEl.addEventListener('click', function (event) {
+            const li = event.target.closest('.list-group-item');
+            if (!li) return;
+
+            const propName = li.id.replace(/^window/, '');
+
+            let value;
+            try {
+                value = window[propName];
+            } catch (err) {
+                value = '[Access Error]';
+            }
+
+            const modalTitle = document.getElementById('propertyModalLabel');
+            modalTitle.textContent = `window.${propName} (${typeof value})`;
+
+            let bodyHTML = '';
+            if (value !== null && typeof value === 'object') {
+                const subArr = sort(value);
+                bodyHTML = `<ul class="list-group">`;
+                subArr.forEach(sub => {
+                    bodyHTML += `<li class="list-group-item"><span class="list-group-item-action">${sub}</span></li>`;
+                });
+                bodyHTML += `</ul>`;
+            } else if (typeof value === 'function') {
+                bodyHTML = `<div class="alert alert-info p-3"><strong>Function:</strong><pre class="mb-0">${value.toString()}</pre></div>`;
+            } else {
+                bodyHTML = `<div class="p-3 border bg-light"><strong>Value:</strong> <code>${String(value)}</code></div>`;
+            }
+
+            const modalBodyEl = document.getElementById('modalBody');
+            modalBodyEl.innerHTML = bodyHTML;
+
+            const modalInstance = new bootstrap.Modal(document.getElementById('propertyModal'));
+            modalInstance.show();
+        });    	
+    }
+    
+    function previewDOM() {
+        // Click the previewDOM image → opens modal with the FULL list (scrollable)
+        const previewImg = document.getElementById('previewDOM');
+        previewImg.addEventListener('click', function () {
+            const previewTitle = document.getElementById('previewModalLabel');
+            previewTitle.textContent = `Preview: window children (full list)`;
+
+            let bodyHTML = `
+                <p class="text-muted small mb-3">
+                    <strong>Tip:</strong> Right-click anywhere in the list below 
+                    and choose <strong>"Save as..."</strong> (or <strong>"Save page as..."</strong>) 
+                    to download the raw HTML list directly to your default Downloads folder.
+                </p>
+                <ul type="circle" style="max-height: 70vh; overflow-y: auto;">`;
+
+            // FULL list – no slicing, no ellipsis
+            topLevelChildren.forEach(sub => {
+                bodyHTML += `<li>${sub}</li>`;
+            });
+
+            bodyHTML += `</ul>`;
+
+            const previewBody = document.getElementById('previewModalBody');
+            previewBody.innerHTML = bodyHTML;
+
+            const previewInstance = new bootstrap.Modal(document.getElementById('previewModal'));
+            previewInstance.show();
+        });
+    }
+    
+    function sort(e) {
+        var arr = [];
+        for (i in e) {
+            arr.push(i);
+        }
+        arr.sort(function (a, b) {
+            return a.toLowerCase().localeCompare(b.toLowerCase());
+        });
+        return arr;
+    }
+    
+    function printOut(list,exlist) {
+        var str='';
+        for (e in list) {
+            if (exlist.includes(list[e])) continue;			
+            str = str + '<li id="' + 'window' + list[e] + '" class="list-group-item">';
+            str = str + '<span class="list-group-item-action">' + list[e] + '</span>';
+            str = str + '</li>';
+        }
+        return str;
+    }
+         
+    function expandContract(list) {
+        var str = '';
+        str = str + '<span class="fw-3">';
+        str = str + '<a class="btn btn-sm" data-bs-toggle="collapse" href="#list' + list + '" role="button" aria-expanded="false" aria-controls="list' + list + '">';
+        str = str + '-';
+        str = str + '</a>';
+        str = str + '<a class="btn btn-sm" data-bs-toggle="collapse" href="#list' + list + '" role="button" aria-expanded="false" aria-controls="list' + list + '">';
+        str = str + '+';
+        str = str + '</a>';
+        str = str + '</span>';
+        return str;
+    }
+
+</script>
+
+<script
+    src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+<script
+    src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/js/bootstrap.min.js"></script>
+
+</html>
