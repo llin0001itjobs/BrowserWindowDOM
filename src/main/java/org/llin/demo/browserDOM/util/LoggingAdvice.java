@@ -1,59 +1,59 @@
 package org.llin.demo.browserDOM.util;
 
-import org.aspectj.lang.JoinPoint;
-import org.aspectj.lang.annotation.AfterReturning;
-import org.aspectj.lang.annotation.AfterThrowing;
+import org.aspectj.lang.ProceedingJoinPoint;
+import org.aspectj.lang.Signature;
+import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
-import org.aspectj.lang.annotation.Before;
-import org.aspectj.lang.annotation.Pointcut;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
+import java.time.Duration;
+import java.time.Instant;
+
 @Aspect
 @Component
 public class LoggingAdvice {
+
     private static final Logger logger = LoggerFactory.getLogger(LoggingAdvice.class);
+    private static final String PACKAGE = "org.llin.demo.browserDOM";
 
-    // Pointcut for all methods in specified packages
-    @Pointcut("execution(* org.llin.demo.browserDOM.controller..*.*(..)) || " +
-              "execution(* org.llin.demo.browserDOM.service..*.*(..)) || " +
-              "execution(* org.llin.demo.browserDOM.util..*.*(..))")
-    private void applicationMethods() {}
+    @Around("execution(* " + PACKAGE + ".controller.*.*(..))")
+    public Object aroundController(ProceedingJoinPoint joinPoint) throws Throwable {
+        return logExecutionTime("CONTROLLER", joinPoint);
+    }
 
-    // Before advice - logs method entry
-    @Before("applicationMethods()")
-    public void logMethodEntry(JoinPoint joinPoint) {
-        String className = joinPoint.getSignature().getDeclaringTypeName();
-        String methodName = joinPoint.getSignature().getName();
-        Object[] args = joinPoint.getArgs();
-        
-        StringBuilder argsString = new StringBuilder();
-        for (Object arg : args) {
-            argsString.append(arg == null ? "null" : arg.toString()).append(", ");
+    @Around("execution(* " + PACKAGE + ".menu.*.*(..))")
+    public Object aroundMenu(ProceedingJoinPoint joinPoint) throws Throwable {
+        return logExecutionTime("MENU", joinPoint);
+    }
+
+    @Around("execution(* " + PACKAGE + ".service.*.*(..))")
+    public Object aroundService(ProceedingJoinPoint joinPoint) throws Throwable {
+        return logExecutionTime("SERVICE", joinPoint);
+    }
+
+    @Around("execution(* " + PACKAGE + ".util.*.*(..))")
+    public Object aroundUtility(ProceedingJoinPoint joinPoint) throws Throwable {
+        return logExecutionTime("UTILITY", joinPoint);
+    }
+
+    private Object logExecutionTime(String layer, ProceedingJoinPoint joinPoint) throws Throwable {
+        Signature signature = joinPoint.getSignature();
+        String methodName = signature.getName();
+        String className = signature.getDeclaringTypeName().replace(PACKAGE + ".", ""); // cleaner name
+
+        logger.trace("╔═══ START {} → {}.{}", layer, className, methodName);
+
+        Instant start = Instant.now();
+        try {
+            return joinPoint.proceed();
+        } finally {
+            long millis = Duration.between(start, Instant.now()).toMillis();
+            long seconds = millis / 1000;
+
+            logger.trace("╚═══ END   {} → {}.{}  |  {} ms ({} s)", 
+                         layer, className, methodName, millis, seconds);
         }
-        
-        logger.trace("Entering method: {}.{} with arguments: {}", 
-            className, methodName, argsString.length() > 0 ? argsString.substring(0, argsString.length() - 2) : "none");
-    }
-
-    // After returning advice - logs method exit with return value
-    @AfterReturning(pointcut = "applicationMethods()", returning = "result")
-    public void logMethodExit(JoinPoint joinPoint, Object result) {
-        String className = joinPoint.getSignature().getDeclaringTypeName();
-        String methodName = joinPoint.getSignature().getName();
-        
-        logger.trace("Exiting method: {}.{} with return value: {}", 
-            className, methodName, result == null ? "null" : result.toString());
-    }
-
-    // After throwing advice - logs exceptions
-    @AfterThrowing(pointcut = "applicationMethods()", throwing = "exception")
-    public void logException(JoinPoint joinPoint, Throwable exception) {
-        String className = joinPoint.getSignature().getDeclaringTypeName();
-        String methodName = joinPoint.getSignature().getName();
-        
-        logger.error("Exception in method: {}.{} with message: {}", 
-            className, methodName, exception.getMessage(), exception);
     }
 }
