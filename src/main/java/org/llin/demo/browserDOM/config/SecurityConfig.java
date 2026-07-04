@@ -34,9 +34,10 @@ public class SecurityConfig {
 	@Bean
 	public SecurityFilterChain securityFilterChain(HttpSecurity http, CustomUserDetailsService userDetailsService,
 			CustomOAuth2UserService oAuth2UserService) throws Exception {
-		http.authorizeHttpRequests(auth -> auth.requestMatchers("/", "/login","/register","/requestPassword","/setPassword","/verify",
-				"/forgotUser","requestNewPassword","/setNewPassword",
-				"/css/**", "/js/**","/images/**").permitAll()
+		http.authorizeHttpRequests(auth -> auth.requestMatchers("/", "/forgotUser","/login","/register",
+																"requestNewPassword","/requestPassword",
+																"/setNewPassword","/setPassword","/verify",
+																"/css/**", "/js/**","/images/**").permitAll()
 			    .requestMatchers("/user/**").authenticated()
 			    .anyRequest().authenticated())	
 				.formLogin(form -> form.loginPage("/login").defaultSuccessUrl("/home", true).permitAll())

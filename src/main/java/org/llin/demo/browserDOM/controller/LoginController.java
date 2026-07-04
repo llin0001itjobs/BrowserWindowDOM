@@ -86,7 +86,7 @@ public class LoginController {
 			User user = optUser.get();
 			user.setEnabled(true);
 			user.setEmailVerified(true);
-			user.setVerificationToken(null);
+			user.setVerificationToken(token);
 			userRepository.save(user);
 			// Send confirmed email
 			emailService.sendSimpleEmail(user.getEmail(), subjectVerified, textVerified);
