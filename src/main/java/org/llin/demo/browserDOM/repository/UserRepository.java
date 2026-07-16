@@ -2,7 +2,7 @@ package org.llin.demo.browserDOM.repository;
 
 import java.util.Optional;
 
-import org.llin.demo.browserDOM.model.User;
+import org.llin.demo.browserDOM.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface UserRepository extends JpaRepository<User, Integer> {

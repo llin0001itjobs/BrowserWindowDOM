@@ -1,6 +1,6 @@
-package org.llin.demo.browserDOM.model;
+package org.llin.demo.browserDOM.entity;
 
-import org.llin.demo.browserDOM.model.listener.EntityAuditListener;
+import org.llin.demo.browserDOM.entity.listener.EntityAuditListener;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;

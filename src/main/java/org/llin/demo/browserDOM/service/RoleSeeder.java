@@ -1,6 +1,6 @@
 package org.llin.demo.browserDOM.service;
 
-import org.llin.demo.browserDOM.model.Role;
+import org.llin.demo.browserDOM.entity.Role;
 import org.llin.demo.browserDOM.repository.RoleRepository;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;

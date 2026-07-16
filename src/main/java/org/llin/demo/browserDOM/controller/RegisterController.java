@@ -2,11 +2,12 @@ package org.llin.demo.browserDOM.controller;
 
 import java.util.UUID;
 
-import org.llin.demo.browserDOM.model.User;
+import org.llin.demo.browserDOM.entity.User;
 import org.llin.demo.browserDOM.repository.RoleRepository;
 import org.llin.demo.browserDOM.repository.UserRepository;
 import org.llin.demo.browserDOM.service.EmailService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -38,6 +39,9 @@ public class RegisterController {
 		return "page-register";
 	}
 
+	@Value("server.port")
+	private String port;
+	
 	@PostMapping("/register")
 	public String handleRegistration(@ModelAttribute("user") @Valid User user, 
 	                                 BindingResult result, 
@@ -88,7 +92,7 @@ public class RegisterController {
 	    userRepository.save(user);
 
 	    // Send verification email (your existing code)
-	    String verificationLink = "http://localhost:8080/browser-dom/verify?token=" + user.getVerificationToken();
+	    String verificationLink = "http://localhost:" + port + "/browser-dom/verify?token=" + user.getVerificationToken();
 	    String verificationText = "Please verify your email by clicking this link: " + verificationLink;
 
 	    try {

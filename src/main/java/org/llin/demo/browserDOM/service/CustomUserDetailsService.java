@@ -3,7 +3,7 @@ package org.llin.demo.browserDOM.service;
 import java.util.Collections;
 import java.util.Optional;
 
-import org.llin.demo.browserDOM.model.User;
+import org.llin.demo.browserDOM.entity.User;
 import org.llin.demo.browserDOM.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;

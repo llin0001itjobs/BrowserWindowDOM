@@ -1,8 +1,8 @@
-package org.llin.demo.browserDOM.model.listener;
+package org.llin.demo.browserDOM.entity.listener;
 
 import java.sql.Timestamp;
 
-import org.llin.demo.browserDOM.model.AuditCentral;
+import org.llin.demo.browserDOM.entity.AuditCentral;
 import org.llin.demo.browserDOM.repository.AuditRepository;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;

@@ -5,9 +5,9 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
-import org.llin.demo.browserDOM.model.CustomOAuth2User;
-import org.llin.demo.browserDOM.model.Role;
-import org.llin.demo.browserDOM.model.User;
+import org.llin.demo.browserDOM.entity.CustomOAuth2User;
+import org.llin.demo.browserDOM.entity.Role;
+import org.llin.demo.browserDOM.entity.User;
 import org.llin.demo.browserDOM.repository.RoleRepository;
 import org.llin.demo.browserDOM.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;

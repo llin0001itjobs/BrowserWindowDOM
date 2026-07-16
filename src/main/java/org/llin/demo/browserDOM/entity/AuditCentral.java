@@ -1,4 +1,4 @@
-package org.llin.demo.browserDOM.model;
+package org.llin.demo.browserDOM.entity;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;

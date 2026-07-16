@@ -1,4 +1,4 @@
-package org.llin.demo.browserDOM.model;
+package org.llin.demo.browserDOM.entity;
 
 import java.util.Collection;
 import java.util.Map;

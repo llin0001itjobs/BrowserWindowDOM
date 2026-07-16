@@ -2,8 +2,8 @@ package org.llin.demo.browserDOM.controller;
 
 import java.util.Optional;
 
+import org.llin.demo.browserDOM.entity.User;
 import org.llin.demo.browserDOM.form.ForgotUserForm;
-import org.llin.demo.browserDOM.model.User;
 import org.llin.demo.browserDOM.repository.UserRepository;
 import org.llin.demo.browserDOM.service.EmailService;
 import org.springframework.beans.factory.annotation.Autowired;
