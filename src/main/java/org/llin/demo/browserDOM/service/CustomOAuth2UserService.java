@@ -1,6 +1,7 @@
 package org.llin.demo.browserDOM.service;
 
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
@@ -54,14 +55,10 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 	        user.setEmailVerified(true);
 	        user.setVerificationToken(UUID.randomUUID().toString());
 
-	        // ←←← CRITICAL: safely get or create role
-	        Role role = roleRepository.findRoleByType("ROLE_USER");
-	        if (role == null) {
-	            throw new OAuth2AuthenticationException(
-	                "Default role 'ROLE_USER' not found in database. " +
-	                "Check that RoleSeeder has run or manually insert the role.");
-	        }
-	        user.setRole(role);
+	        
+	        HashSet<Role> hs = new HashSet<>(); 
+	        hs.add(getDefaultRole());
+	        user.setRoles(hs);
 
 	        userRepository.save(user);
 	    } else {
@@ -69,22 +66,31 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 	    }
 
 	    // Extra safety for any legacy users that might have null role
-	    if (user.getRole() == null) {
-	        Role defaultRole = roleRepository.findRoleByType("ROLE_USER");
-	        if (defaultRole != null) {
-	            user.setRole(defaultRole);
+	    if (user.getRoles() == null || user.getRoles().isEmpty()) {
+
+		        HashSet<Role> hs = new HashSet<>();
+		        hs.add(getDefaultRole());
+		        user.setRoles(hs);	       	        	
 	            userRepository.save(user);
-	        } else {
-	            throw new OAuth2AuthenticationException("Default role 'ROLE_USER' not found.");
-	        }
 	    }
 
 	    OAuth2User oUser = new DefaultOAuth2User(
-	            Collections.singleton(new SimpleGrantedAuthority(user.getRole().getType())),
+	            Collections.singleton(new SimpleGrantedAuthority(getDefaultRole().getType())),
 	            attributes,
 	            userNameAttribute);
 
 	    return new CustomOAuth2User(oUser, user);
+	}
+	
+	private Role getDefaultRole() {
+        Optional<Role> optRole = roleRepository.findRoleByType("USER");
+        if (optRole.isEmpty()) {
+            throw new OAuth2AuthenticationException(
+                "Default role 'USER' not found in database. " +
+                "Check that RoleSeeder has run or manually insert the role.");
+        }
+        
+        return optRole.get();
 	}
 	
 	private String extractEmail(Map<String, Object> attributes, String provider) {

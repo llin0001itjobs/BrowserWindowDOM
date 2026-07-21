@@ -1,7 +1,10 @@
 package org.llin.demo.browserDOM.controller;
 
+import java.util.HashSet;
+import java.util.Optional;
 import java.util.UUID;
 
+import org.llin.demo.browserDOM.entity.Role;
 import org.llin.demo.browserDOM.entity.User;
 import org.llin.demo.browserDOM.repository.RoleRepository;
 import org.llin.demo.browserDOM.repository.UserRepository;
@@ -9,6 +12,7 @@ import org.llin.demo.browserDOM.service.EmailService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -84,7 +88,10 @@ public class RegisterController {
 	    user.setConfirmPassword(null);
 
 	    // Finish registration
-	    user.setRole(roleRepository.findRoleByType("USER"));
+	    HashSet<Role> hs = new HashSet<>();
+	    
+	    hs.add(getDefaultRole());
+	    user.setRoles(hs);
 	    user.setEnabled(false);
 	    user.setEmailVerified(false);
 	    user.setVerificationToken(UUID.randomUUID().toString());
@@ -103,5 +110,16 @@ public class RegisterController {
 	    }
 
 	    return "redirect:/login?registrationSuccess=true";
+	}
+	
+	private Role getDefaultRole() {
+        Optional<Role> optRole = roleRepository.findRoleByType("USER");
+        if (optRole.isEmpty()) {
+            throw new OAuth2AuthenticationException(
+                "Default role 'USER' not found in database. " +
+                "Check that RoleSeeder has run or manually insert the role.");
+        }
+        
+        return optRole.get();
 	}
 }
