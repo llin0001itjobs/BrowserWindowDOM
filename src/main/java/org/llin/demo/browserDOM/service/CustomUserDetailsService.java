@@ -37,7 +37,6 @@ public class CustomUserDetailsService implements UserDetailsService {
         );
     }
     
-
     public User findUserByUsername(String username) {
     	Optional<User> optUser = userRepository.findByUsername(username);
         if (!optUser.isPresent()) {
