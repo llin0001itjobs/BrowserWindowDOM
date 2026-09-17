@@ -4,13 +4,13 @@ import java.util.HashSet;
 import java.util.Optional;
 import java.util.UUID;
 
+import org.llin.demo.browserDOM.config.PropertyDefaultProperties;
 import org.llin.demo.browserDOM.entity.Role;
 import org.llin.demo.browserDOM.entity.User;
 import org.llin.demo.browserDOM.repository.RoleRepository;
 import org.llin.demo.browserDOM.repository.UserRepository;
 import org.llin.demo.browserDOM.service.EmailService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.stereotype.Controller;
@@ -38,13 +38,13 @@ public class RegisterController {
 	@Autowired
 	private BCryptPasswordEncoder passwordEncoder;
 	
+	@Autowired
+	private PropertyDefaultProperties props;
+	
 	@GetMapping("/register")
 	public String showRegisterForm(@ModelAttribute("user") User user) {
 		return "page-register";
 	}
-
-	@Value("server.port")
-	private String port;
 	
 	@PostMapping("/register")
 	public String handleRegistration(@ModelAttribute("user") @Valid User user, 
@@ -99,7 +99,7 @@ public class RegisterController {
 	    userRepository.save(user);
 
 	    // Send verification email (your existing code)
-	    String verificationLink = "http://localhost:" + port + "/browser-dom/verify?token=" + user.getVerificationToken();
+	    String verificationLink = "http://localhost:" + props.getServer().getPort() + "/browser-dom/verify?token=" + user.getVerificationToken();
 	    String verificationText = "Please verify your email by clicking this link: " + verificationLink;
 
 	    try {
@@ -113,10 +113,10 @@ public class RegisterController {
 	}
 	
 	private Role getDefaultRole() {
-        Optional<Role> optRole = roleRepository.findRoleByType("USER");
+        Optional<Role> optRole = roleRepository.findRoleByType("ROLE_USER");
         if (optRole.isEmpty()) {
             throw new OAuth2AuthenticationException(
-                "Default role 'USER' not found in database. " +
+                "Default role 'ROLE_USER' not found in database. " +
                 "Check that RoleSeeder has run or manually insert the role.");
         }
         
