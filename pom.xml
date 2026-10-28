@@ -76,6 +76,11 @@
 			<artifactId>commons-lang3</artifactId>
 		</dependency>
 		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-text</artifactId>
+			<version>1.12.0</version> <!-- Use the latest version -->
+		</dependency>
+		<dependency>
 			<groupId>com.azure.spring</groupId>
 			<artifactId>
 				spring-cloud-azure-starter-keyvault-secrets
@@ -104,7 +109,7 @@
 						<AZURE_CLIENT_SECRET>your-client-secret-here</AZURE_CLIENT_SECRET>
 						<AZURE_TENANT_ID>your-tenant-id-here</AZURE_TENANT_ID>
 					</environmentVariables>
-				</configuration>			
+				</configuration>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
 				<executions>
