@@ -22,13 +22,12 @@ public class SecurityConfig {
 	
 	@Bean
 	public AuthenticationManager authenticationManager(HttpSecurity http,
-	                                                   BCryptPasswordEncoder passwordEncoder,
-	                                                   CustomUserDetailsService userDetailsService) throws Exception {
-	    return http.getSharedObject(AuthenticationManagerBuilder.class)
+	        BCryptPasswordEncoder passwordEncoder,
+	        CustomUserDetailsService userDetailsService) throws Exception {
+	    
+	    return (AuthenticationManager) http.getSharedObject(AuthenticationManagerBuilder.class)
 	            .userDetailsService(userDetailsService)
-	            .passwordEncoder(passwordEncoder)
-	            .and()
-	            .build();
+	            .passwordEncoder(passwordEncoder); // .and().build() removed here
 	}
 
 	@Bean
